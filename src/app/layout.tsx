@@ -14,9 +14,9 @@ export default function RootLayout({
     <html lang="en">
       <body
         className="bg-cover bg-center h-screen w-screen"
-        style={{
-          backgroundImage: "url('/images/background.png')", // 배경화면 이미지 설정
-        }}
+        // style={{
+        // backgroundImage: "url('/images/background.png')", // 배경화면 이미지 설정
+        // }}
       >
         {children}
       </body>

@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-export default function HomePage() {
+export default function MiddleScreen() {
+  //실제 인물사진 저장할 곳
+  const [portraitImages, setPortraitImages] = useState([]);
+  const [currentKeys, setCurrentKeys] = useState([1, 2, 3, 4]); // 현재 보여지는 프레임 키
+  const [timer, setTimer] = useState(60); // 각 프레임 전환 타이머 (1분)
+
   const [gridImages, setGridImages] = useState<string[]>([
     "/images/frame1.png",
     "/images/frame2.png",
@@ -25,30 +30,47 @@ export default function HomePage() {
     "/images/4th.png",
   ]); // 설명 박스
 
-  // 이미지 데이터를 API로부터 가져오는 함수
+  // 서버에서 이미지 및 텍스트 데이터 가져오기
   const fetchImages = async () => {
     try {
-      const response = await axios.get("../apis/poll-image"); // API 호출
-      if (response.data?.gridImages && response.data?.portraitImage) {
-        // setGridImages(response.data.gridImages); // 그리드 이미지 업데이트
-        setPortraitImage(response.data.portraitImage); // 인물 사진 업데이트
+      const response = await axios.get("/api/get-images");
+      if (response.data?.images) {
+        setPortraitImages(response.data.images); // 받아온 이미지 배열 설정
       }
     } catch (error) {
       console.error("Error fetching images:", error);
     }
   };
 
-  // 주기적으로 이미지를 업데이트 (롱폴링)
-  // useEffect(() => {
-  //   const interval = setInterval(fetchImages, 5000); // 5초마다 실행
-  //   fetchImages(); // 초기 데이터 로드
-  //   return () => clearInterval(interval); // 컴포넌트 언마운트 시 클린업
-  // }, []);
+  // 타이머가 1분이 지나면 서버로 현재 key값 전송
+  const sendKeyToServer = async (key: number) => {
+    try {
+      await axios.post("/api/return-key", { key });
+    } catch (error) {
+      console.error("Error sending key:", error);
+    }
+  };
+
+  // 타이머 관리 및 key값 전송
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimer((prev) => {
+        if (prev === 1) {
+          currentKeys.forEach((key) => sendKeyToServer(key)); // 1분 후 key값 전송
+          fetchImages(); // 새로운 이미지를 가져옴
+          return 60; // 타이머 리셋
+        }
+        return prev - 1;
+      });
+    }, 1000); // 1초 간격으로 타이머 업데이트
+
+    return () => clearInterval(interval);
+  }, [currentKeys]);
 
   return (
-    <div
+    <main
       className="relative flex items-center justify-center h-screen bg-contain bg-center"
-      style={{ backgroundImage: "url('/background.png')" }}
+      style={{ backgroundImage: "url('/images/background.png')" }}
     >
       {/* 전체화면 그리드 */}
       <div
@@ -56,12 +78,11 @@ export default function HomePage() {
         style={{
           width: "100%", // 화면 크기에 비례
           aspectRatio: "2790 / 1080", // 2790 x 1080 비율 고정
-          // background: "pink",
         }}
       >
         {gridImages.map((frame, index) => (
           <div
-            key={index}
+            key={portraitImage[index]}
             className="relative flex flex-col justify-center items-center"
             style={{
               height: "90%", // 동적으로 높이 조정
@@ -80,6 +101,7 @@ export default function HomePage() {
             >
               {/* 프레임 이미지 */}
               <img
+                key={index}
                 src={frame}
                 alt={`Frame ${index}`}
                 className="relative w-full h-full object-contain z-30"
@@ -136,6 +158,6 @@ export default function HomePage() {
           </div>
         ))}
       </div>
-    </div>
+    </main>
   );
 }
