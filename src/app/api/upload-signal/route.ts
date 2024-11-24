@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 
-let pendingImages = 0; // 받을 이미지 개수 저장 변수
+// let pendingImages = 0; // 받을 이미지 개수 저장 변수
+import { incrementPendingImages } from "@/utils/state";
 
 // POST 요청 처리
 export async function POST(request: Request) {
-  pendingImages += 1; // 받을 이미지 개수 증가
-  console.log(`Pending images count: ${pendingImages}`);
-
+  incrementPendingImages();
+  console.log("request를 받았습니다.", request);
   return NextResponse.json(
-    { message: "Signal received", pendingImages },
+    { message: "Signal received" },
     {
       headers: {
         "Access-Control-Allow-Origin": "*", // 모든 도메인 허용

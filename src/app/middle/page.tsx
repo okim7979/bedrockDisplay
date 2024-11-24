@@ -3,69 +3,121 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-export default function MiddleScreen() {
-  //실제 인물사진 저장할 곳
-  const [portraitImages, setPortraitImages] = useState([]);
-  const [currentKeys, setCurrentKeys] = useState([1, 2, 3, 4]); // 현재 보여지는 프레임 키
-  const [timer, setTimer] = useState(60); // 각 프레임 전환 타이머 (1분)
+interface ImageData {
+  src: string;
+  text: string;
+}
 
-  const [gridImages, setGridImages] = useState<string[]>([
+interface FrameData {
+  key: number;
+  image: string;
+  text: string;
+  timestamp: number;
+}
+
+export default function MiddleScreen() {
+  // 프레임 데이터 상태 관리
+  const [frames, setFrames] = useState<FrameData[]>([
+    { key: 1, image: "/images/mock1.png", text: "", timestamp: Date.now() },
+    { key: 2, image: "/images/mock2.png", text: "", timestamp: Date.now() },
+    { key: 3, image: "/images/mock3.png", text: "", timestamp: Date.now() },
+    { key: 4, image: "/images/mock4.png", text: "", timestamp: Date.now() },
+  ]);
+
+  // 고정 frame
+  const [gridImages] = useState<string[]>([
     "/images/frame1.png",
     "/images/frame2.png",
     "/images/frame3.png",
     "/images/frame4.png",
-  ]); // 그리드 이미지 리스트
-  // const [portraitImage, setPortraitImage] = useState<string | null>(null); // 인물 사진
+  ]);
+
+  const [explainBox] = useState<string[]>([
+    "/images/1st.png",
+    "/images/2nd.png",
+    "/images/3rd.png",
+    "/images/4th.png",
+  ]);
+
+  // 인물 사진
   const [portraitImage, setPortraitImage] = useState<string[]>([
     "/images/mock1.png",
     "/images/mock2.png",
     "/images/mock3.png",
     "/images/mock4.png",
-  ]); // 인물 사진
+  ]);
 
-  const [explainBox, setExplainBox] = useState<string[]>([
-    "/images/1st.png",
-    "/images/2nd.png",
-    "/images/3rd.png",
-    "/images/4th.png",
-  ]); // 설명 박스
-
-  // 서버에서 이미지 및 텍스트 데이터 가져오기
-  const fetchImages = async () => {
-    try {
-      const response = await axios.get("/api/get-images");
-      if (response.data?.images) {
-        setPortraitImages(response.data.images); // 받아온 이미지 배열 설정
-      }
-    } catch (error) {
-      console.error("Error fetching images:", error);
-    }
-  };
-
-  // 타이머가 1분이 지나면 서버로 현재 key값 전송
-  const sendKeyToServer = async (key: number) => {
+  // 서버에 프레임 키 등록
+  const registerFrameKey = async (key: number): Promise<void> => {
     try {
       await axios.post("/api/return-key", { key });
+      console.log(`Registered frame key: ${key}`);
     } catch (error) {
-      console.error("Error sending key:", error);
+      console.error("Error registering frame key:", error);
     }
   };
 
-  // 타이머 관리 및 key값 전송
+  // 초기 프레임 키 등록
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimer((prev) => {
-        if (prev === 1) {
-          currentKeys.forEach((key) => sendKeyToServer(key)); // 1분 후 key값 전송
-          fetchImages(); // 새로운 이미지를 가져옴
-          return 60; // 타이머 리셋
-        }
-        return prev - 1;
-      });
-    }, 1000); // 1초 간격으로 타이머 업데이트
+    const registerAllFrames = async () => {
+      for (const frame of frames) {
+        await registerFrameKey(frame.key);
+      }
+    };
+    registerAllFrames();
+  }, []);
 
-    return () => clearInterval(interval);
-  }, [currentKeys]);
+  // 각 프레임별 타이머 관리
+  useEffect(() => {
+    const intervals = frames.map((frame) => {
+      return setInterval(() => {
+        const now = Date.now();
+        const elapsed = now - frame.timestamp;
+
+        // 1분(60000ms)이 지났는지 확인
+        if (elapsed >= 60000) {
+          // 새로운 프레임 키 등록
+          registerFrameKey(frame.key);
+
+          // 프레임 타임스탬프 업데이트
+          setFrames((prev) =>
+            prev.map((f) =>
+              f.key === frame.key ? { ...f, timestamp: now } : f
+            )
+          );
+        }
+      }, 1000); // 1초마다 체크
+    });
+
+    return () => intervals.forEach(clearInterval);
+  }, [frames]);
+
+  // 서버로부터 새 데이터 수신
+  useEffect(() => {
+    const eventSource = new EventSource("/api/queue");
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data) as {
+        frameKey: number;
+        data: ImageData;
+      };
+
+      setFrames((prev) =>
+        prev.map((frame) =>
+          frame.key === data.frameKey
+            ? {
+                ...frame,
+                image: data.data.src,
+                text: data.data.text,
+                timestamp: Date.now(),
+              }
+            : frame
+        )
+      );
+    };
+
+    return () => eventSource.close();
+  }, []);
 
   return (
     <main
@@ -80,9 +132,9 @@ export default function MiddleScreen() {
           aspectRatio: "2790 / 1080", // 2790 x 1080 비율 고정
         }}
       >
-        {gridImages.map((frame, index) => (
+        {frames.map((frame, index) => (
           <div
-            key={portraitImage[index]}
+            key={frame.key}
             className="relative flex flex-col justify-center items-center"
             style={{
               height: "90%", // 동적으로 높이 조정
@@ -102,14 +154,14 @@ export default function MiddleScreen() {
               {/* 프레임 이미지 */}
               <img
                 key={index}
-                src={frame}
+                src={gridImages[index]}
                 alt={`Frame ${index}`}
                 className="relative w-full h-full object-contain z-30"
               />
 
               {/* 인물 이미지 */}
               <img
-                src={portraitImage[index]}
+                src={frame.image}
                 alt={`Portrait ${index}`}
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[52%] z-10"
                 style={{
