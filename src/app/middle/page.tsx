@@ -123,7 +123,10 @@ export default function MiddleScreen() {
   return (
     <main
       className="relative flex items-center justify-center h-screen bg-contain bg-center"
-      style={{ backgroundImage: "url('/images/background.png')" }}
+      style={{
+        backgroundImage: "url('/images/background.png')",
+        backgroundSize: "calc(100% + 180px)", // 너비 2790 기준으로 배경 크기를 2970에 맞춤
+      }}
     >
       <PollerComponent />
 
@@ -151,7 +154,6 @@ export default function MiddleScreen() {
               style={{
                 height: "70%", // 전체 높이의 3/4
                 width: "100%", // 너비는 100%
-                // background: "red",
               }}
             >
               {/* 프레임 이미지 */}

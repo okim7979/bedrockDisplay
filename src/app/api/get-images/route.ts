@@ -7,6 +7,11 @@ import {
   availableKeys,
 } from "@/utils/state";
 
+type ImageData = { Image: string; Description: string };
+
+// API 응답 타입
+type ApiResponse = { data: ImageData[] };
+
 // AWS로부터 데이터를 받아와 적절한 엔드포인트로 전송하는 함수
 async function processAndRouteData(data: { src: string; text: string }) {
   // availableKeys에서 가장 오래된 키를 가져옴
@@ -48,40 +53,45 @@ export async function GET() {
     if (pendingImages <= 0) {
       console.log("No pending images. Returning 204 status.");
 
-      return NextResponse.json(
-        null, // 본문 없음
-        { status: 204 }
-      );
+      return new NextResponse(null, { status: 204 });
     }
 
     const apiUrl = process.env.NEXT_PUBLIC_IMAGE_GET_API_URL;
-    // API URL이 정의되지 않은 경우
+
     if (!apiUrl) {
+      // API URL이 정의되지 않은 경우
       return NextResponse.json(
         { error: "NEXT_PUBLIC_IMAGE_GET_API_URL is not defined" },
         { status: 500 }
       );
     }
-    let receivedDataCount = 0; // 현재 요청에서 받은 데이터 개수 추적
 
+    let receivedDataCount = 0; // 현재 요청에서 받은 데이터 개수 추적
     try {
       console.log("get-images api 실행");
-      const response = await axios.get(apiUrl, { timeout: 60000 });
-      console.log("get-images api response : ", response.data);
+      const response: ApiResponse = await axios.get(apiUrl, { timeout: 60000 });
 
-      const now = new Date();
-      console.log("현재 시간 (서버):", now.toLocaleString());
-
-      // 가져온 데이터를 이미지 큐에 추가
-      if (response && response.data) {
-        //&& Array.isArray(response.data.images)
-        imageQueue.push(...response.data); // 가져온 데이터를 큐에 추가
-        receivedDataCount = response.data.length; //받은 데이터 개수 저장
+      if (Array.isArray(response.data) && response.data.length === 0) {
+        //응답이 빈배열인경우
+        console.log("get-images api response is empty array.");
       } else {
-        console.warn(
-          "Invalid response format or no images found. : ",
-          response.data
-        );
+        console.log("get-images api response : ", response.data);
+
+        // 가져온 데이터를 이미지 큐에 추가
+        if (response && Array.isArray(response.data)) {
+          response.data.forEach((obj: ImageData) => {
+            imageQueue.push(obj);
+          });
+
+          console.log(`현재 큐 상태:`, imageQueue);
+
+          receivedDataCount = response.data.length; //받은 데이터 개수 저장
+        } else {
+          console.warn(
+            "Invalid response format or no images found. : ",
+            response.data
+          );
+        }
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -119,10 +129,7 @@ export async function GET() {
     }
 
     // 모든 데이터가 처리된 경우
-    return NextResponse.json(
-      { message: "All pending images processed" },
-      { status: 204 }
-    );
+    return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error("Error fetching images:", error);
 

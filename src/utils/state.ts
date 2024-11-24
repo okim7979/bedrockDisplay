@@ -1,4 +1,4 @@
-export let imageQueue: { src: string; text: string }[] = [];
+export let imageQueue: { Image: string; Description: string }[] = [];
 export let availableKeys: number[] = [];
 
 export let pendingImages = 0;
