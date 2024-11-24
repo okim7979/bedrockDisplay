@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import PollerComponent from "../_components/PollerComponent";
 
 interface ImageData {
   src: string;
@@ -94,7 +95,7 @@ export default function MiddleScreen() {
 
   // 서버로부터 새 데이터 수신
   useEffect(() => {
-    const eventSource = new EventSource("/api/queue");
+    const eventSource = new EventSource("/api/get-images");
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data) as {
@@ -124,6 +125,8 @@ export default function MiddleScreen() {
       className="relative flex items-center justify-center h-screen bg-contain bg-center"
       style={{ backgroundImage: "url('/images/background.png')" }}
     >
+      <PollerComponent />
+
       {/* 전체화면 그리드 */}
       <div
         className="relative grid grid-cols-4 gap-4 items-center "

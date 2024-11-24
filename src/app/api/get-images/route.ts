@@ -31,7 +31,6 @@ async function processAndRouteData(data: { src: string; text: string }) {
 
     // 사용된 키 제거
     availableKeys.shift(); // 가장 오래된 키를 제거
-    decrementPendingImages(); // 처리된 이미지 수 감소
 
     return true; // 성공적으로 처리된 경우
   } catch (error) {
@@ -42,17 +41,20 @@ async function processAndRouteData(data: { src: string; text: string }) {
 
 // GET 메서드 처리 (롱폴링 구현)
 export async function GET() {
+  console.log("get-images 함수 실행");
+
   try {
     // `pendingImages`가 0 이하이면 더 이상 처리하지 않음
     if (pendingImages <= 0) {
+      console.log("No pending images. Returning 204 status.");
+
       return NextResponse.json(
-        { message: "No pending images" },
+        null, // 본문 없음
         { status: 204 }
       );
     }
 
     const apiUrl = process.env.NEXT_PUBLIC_IMAGE_GET_API_URL;
-
     // API URL이 정의되지 않은 경우
     if (!apiUrl) {
       return NextResponse.json(
@@ -60,33 +62,49 @@ export async function GET() {
         { status: 500 }
       );
     }
-
-    // AWS API Gateway에서 데이터를 가져옴
-    const response = await axios.get(apiUrl);
-
     let receivedDataCount = 0; // 현재 요청에서 받은 데이터 개수 추적
 
-    // 가져온 데이터를 이미지 큐에 추가
-    if (response.data && response.data.images) {
-      imageQueue.push(...response.data.images); // 가져온 데이터를 큐에 추가
-      receivedDataCount = response.data.images.length;
-    }
+    try {
+      console.log("get-images api 실행");
+      const response = await axios.get(apiUrl, { timeout: 60000 });
+      console.log("get-images api response : ", response.data);
 
-    // 큐에서 데이터를 처리하고, 사용 가능한 키와 매칭
-    while (imageQueue.length > 0 && availableKeys.length > 0) {
-      const nextImage = imageQueue.shift(); // 큐에서 첫 번째 이미지를 가져옴
-      if (nextImage) {
-        const processed = await processAndRouteData(nextImage);
-        if (processed) {
-          receivedDataCount--; // 성공적으로 처리된 데이터 감소
-        }
+      const now = new Date();
+      console.log("현재 시간 (서버):", now.toLocaleString());
+
+      // 가져온 데이터를 이미지 큐에 추가
+      if (response && response.data) {
+        //&& Array.isArray(response.data.images)
+        imageQueue.push(...response.data); // 가져온 데이터를 큐에 추가
+        receivedDataCount = response.data.length; //받은 데이터 개수 저장
+      } else {
+        console.warn(
+          "Invalid response format or no images found. : ",
+          response.data
+        );
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error occurred:", error.message);
+      } else {
+        console.error("Unknown error occurred:", error);
       }
     }
 
+    // // 큐에서 데이터를 처리하고, 사용 가능한 키와 매칭
+    // while (imageQueue.length > 0 && availableKeys.length > 0) {
+    //   const nextImage = imageQueue.shift(); // 큐에서 첫 번째 이미지를 가져옴
+    //   if (nextImage) {
+    //     const processed = await processAndRouteData(nextImage);
+    //     if (!processed) {
+    //       console.warn("Failed to process data, retrying...");
+    //       imageQueue.push(nextImage); // 실패한 데이터 다시 삽입
+    //     }
+    //   }
+    // }
+
     // `pendingImages` 값 업데이트
-    for (let i = 0; i < receivedDataCount; i++) {
-      decrementPendingImages();
-    }
+    decrementPendingImages(receivedDataCount);
 
     // 여전히 처리해야 할 `pendingImages`가 남아있으면 계속 롱폴링
     if (pendingImages > 0) {
@@ -115,3 +133,5 @@ export async function GET() {
     );
   }
 }
+
+// 현재 시간 (서버): 11/24/2024, 9:24:44 PM

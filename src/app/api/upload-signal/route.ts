@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
-
 import { incrementPendingImages } from "@/utils/state";
 
 // POST 요청 처리
 export async function POST(request: Request) {
   incrementPendingImages();
+  const now = new Date();
+  console.log("현재 시간 (서버):", now.toLocaleString());
 
   const body = await request.json();
   console.log("POST request received with body:", body);
-
-  // console.log("request를 받았습니다.", request);
+  console.log();
   return NextResponse.json(
     { message: "Signal received" },
     {
