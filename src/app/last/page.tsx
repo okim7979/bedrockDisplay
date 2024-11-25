@@ -144,7 +144,8 @@ export default function LastScreen() {
           height: "100%",
 
           aspectRatio: "2790 / 1080", // 2790 x 1080 비율 고정
-          paddingRight: "5%",
+          paddingRight: "6%",
+          paddingLeft: "5%",
         }}
       >
         {frames.map((frame, index) =>
