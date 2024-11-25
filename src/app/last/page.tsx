@@ -142,15 +142,18 @@ export default function LastScreen() {
         className="relative flex flex-row items-center "
         style={{
           height: "100%",
-
-          aspectRatio: "2790 / 1080", // 2790 x 1080 비율 고정
+          aspectRatio: "2970 / 1080", // 2790 x 1080 비율 고정
           paddingRight: "6%",
           paddingLeft: "5%",
         }}
       >
         {frames.map((frame, index) =>
           frame.key === 0 ? (
-            <div className="w-[40%]" style={{ visibility: "hidden" }}>
+            <div
+              key={frame.key}
+              className="w-[40%]"
+              style={{ visibility: "hidden" }}
+            >
               {" "}
             </div>
           ) : (
