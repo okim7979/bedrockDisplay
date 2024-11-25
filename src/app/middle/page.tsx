@@ -140,8 +140,9 @@ export default function MiddleScreen() {
                 alt={`Portrait ${index}`}
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[52%] z-10"
                 style={{
-                  height: "70%",
-                  width: "auto",
+                  height: "45vh",
+                  width: "14vw",
+                  // width: "auto",
                   clipPath: "ellipse(50% 50% at 50% 50%)", // 타원형 클리핑
                 }}
               />

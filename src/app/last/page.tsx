@@ -157,6 +157,34 @@ export default function LastScreen() {
               {" "}
             </div>
           ) : (
+            // <div
+            //   className="relative"
+            //   style={{
+            //     height: "70%", // 전체 높이의 3/4
+            //     width: "100%", // 너비는 100%
+            //     visibility: "hidden",
+            //   }}
+            // >
+            //   {/* 프레임 이미지 */}
+            //   <img
+            //     key={index}
+            //     src={gridImages[index]}
+            //     alt={`Frame ${index}`}
+            //     className="relative w-full h-full object-contain z-30"
+            //   />
+
+            //   {/* 인물 이미지 */}
+            //   <img
+            //     src={frame.Image}
+            //     alt={`Portrait ${index}`}
+            //     className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[52%] z-10"
+            //     style={{
+            //       height: "70%",
+            //       width: "auto",
+            //       clipPath: "ellipse(50% 50% at 50% 50%)", // 타원형 클리핑
+            //     }}
+            //   />
+            // </div>
             <div
               key={frame.key}
               className="relative flex flex-col justify-center items-center"
@@ -187,9 +215,12 @@ export default function LastScreen() {
                   alt={`Portrait ${index}`}
                   className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[52%] z-10"
                   style={{
-                    height: "70%",
-                    width: "auto",
-                    // width: "60%", // 프레임의 60% 크기
+                    height: "45vh",
+                    width: "14vw",
+
+                    // height: "70%",
+                    // width: "auto",
+                    // width: "50%", // 프레임의 60% 크기
                     // height: "auto",
                     clipPath: "ellipse(50% 50% at 50% 50%)", // 타원형 클리핑
                   }}
