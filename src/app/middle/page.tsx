@@ -2,10 +2,25 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-
+import { useFrameManager } from "@/hooks/useFrameManager";
 import { ImageData, FrameData } from "@/types/frames";
+import PollerComponent from "../_components/PollerComponent";
+import { useDataHandler } from "@/hooks/useDataHandler";
 
 export default function MiddleScreen() {
+  const [gridImages] = useState<string[]>([
+    "/images/frame1.png",
+    "/images/frame2.png",
+    "/images/frame3.png",
+    "/images/frame4.png",
+  ]);
+
+  const [explainBox] = useState<string[]>([
+    "/images/1st.png",
+    "/images/2nd.png",
+    "/images/3rd.png",
+    "/images/4th.png",
+  ]);
   const [frames, setFrames] = useState<FrameData[]>([
     {
       key: 1,
@@ -36,60 +51,28 @@ export default function MiddleScreen() {
       timestamp: Date.now(),
     },
   ]);
+  // useFrameManager(frames, setFrames, true);
 
-  const [gridImages] = useState<string[]>([
-    "/images/frame1.png",
-    "/images/frame2.png",
-    "/images/frame3.png",
-    "/images/frame4.png",
-  ]);
+  // 프레임 상태 업데이트 함수
+  const updateFrames = (frameKey: number, data: ImageData) => {
+    setFrames((prev) =>
+      prev.map((frame) =>
+        frame.key === frameKey
+          ? {
+              ...frame,
+              Image: data.Image,
+              Description: data.Description,
+              timestamp: Date.now(),
+            }
+          : frame
+      )
+    );
 
-  const [explainBox] = useState<string[]>([
-    "/images/1st.png",
-    "/images/2nd.png",
-    "/images/3rd.png",
-    "/images/4th.png",
-  ]);
+    console.log("최종 프레임 상태 업데이트 완료");
+  };
 
-  // 서버로부터 새 데이터 수신
-  useEffect(() => {
-    console.log("Initializing EventSource for /api/get-images");
-    const eventSource = new EventSource("/api/get-images");
-
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data) as {
-        frameKey: number;
-        data: ImageData;
-      };
-
-      console.log("Data received from server:", data);
-
-      // Update the frame that matches the frameKey
-      setFrames((prevFrames) =>
-        prevFrames.map((frame) =>
-          frame.key === data.frameKey
-            ? {
-                ...frame,
-                Image: data.data.Image,
-                Description: data.data.Description,
-                timestamp: Date.now(),
-              }
-            : frame
-        )
-      );
-    };
-
-    eventSource.onerror = (error) => {
-      console.error("Error in EventSource:", error);
-      eventSource.close();
-      // setTimeout(connectEventSource, 5000); // 5초 후 재연결
-    };
-
-    return () => {
-      console.log("Closing EventSource");
-      eventSource.close();
-    };
-  }, []);
+  console.log("middle 페이지에서 useDataHandler 실행");
+  useDataHandler(true, updateFrames);
 
   return (
     <main
@@ -99,8 +82,10 @@ export default function MiddleScreen() {
         backgroundSize: "calc(100% + 180px)", // 너비 2790 기준으로 배경 크기를 2970에 맞춤
       }}
     >
+      <PollerComponent />
+
       <div
-        className="relative grid grid-cols-4  items-center"
+        className="relative grid grid-cols-4 items-center"
         style={{
           height: "100%",
 
@@ -141,11 +126,11 @@ export default function MiddleScreen() {
                 alt={`Portrait ${index}`}
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[52%] z-10"
                 style={{
-                  // height: "70%",
+                  height: "70%",
 
-                  height: "45vh",
-                  width: "15.2vw",
-                  // width: "auto",
+                  // height: "45vh",
+                  // width: "15.2vw",
+                  width: "auto",
                   clipPath: "ellipse(50% 50% at 50% 50%)", // 타원형 클리핑
                 }}
               />

@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import PollerComponent from "../_components/PollerComponent";
-
+import { useFrameManager } from "@/hooks/useFrameManager";
 import { ImageData, FrameData } from "@/types/frames";
+import { useDataHandler } from "@/hooks/useDataHandler";
 
 export default function LastScreen() {
   // 프레임 데이터 상태 관리
@@ -34,6 +35,25 @@ export default function LastScreen() {
       timestamp: Date.now(),
     },
   ]);
+
+  useFrameManager(frames, setFrames, false);
+
+  // 프레임 상태 업데이트 함수
+  const updateFrames = (frameKey: number, data: ImageData) => {
+    setFrames((prev) =>
+      prev.map((frame) =>
+        frame.key === frameKey
+          ? {
+              ...frame,
+              Image: data.Image,
+              Description: data.Description,
+              timestamp: Date.now(),
+            }
+          : frame
+      )
+    );
+  };
+  useDataHandler(false, updateFrames); //업데이트 되는 데이터 받아오기
 
   // 고정 frame
   const [gridImages] = useState<string[]>([
@@ -157,34 +177,6 @@ export default function LastScreen() {
               {" "}
             </div>
           ) : (
-            // <div
-            //   className="relative"
-            //   style={{
-            //     height: "70%", // 전체 높이의 3/4
-            //     width: "100%", // 너비는 100%
-            //     visibility: "hidden",
-            //   }}
-            // >
-            //   {/* 프레임 이미지 */}
-            //   <img
-            //     key={index}
-            //     src={gridImages[index]}
-            //     alt={`Frame ${index}`}
-            //     className="relative w-full h-full object-contain z-30"
-            //   />
-
-            //   {/* 인물 이미지 */}
-            //   <img
-            //     src={frame.Image}
-            //     alt={`Portrait ${index}`}
-            //     className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[52%] z-10"
-            //     style={{
-            //       height: "70%",
-            //       width: "auto",
-            //       clipPath: "ellipse(50% 50% at 50% 50%)", // 타원형 클리핑
-            //     }}
-            //   />
-            // </div>
             <div
               key={frame.key}
               className="relative flex flex-col justify-center items-center"

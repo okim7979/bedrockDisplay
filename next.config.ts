@@ -17,6 +17,14 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "http://127.0.0.1:3001/api/:path*", // 정확한 주소 사용
+      },
+    ];
+  },
 };
 
 export default nextConfig;

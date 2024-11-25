@@ -8,9 +8,9 @@ export default function PollerComponent() {
   const [pendingImages, setPendingImages] = useState(0);
   const isPollingRef = useRef(false); // polling 상태 관리
 
-  console.log("PollerComponent 렌더링. pendingImages:", pendingImages);
+  // console.log("PollerComponent 렌더링. pendingImages:", pendingImages);
 
-  // pendingImages 변수 업데이트
+  // pendingImages 변수값 업데이트
   const updatePendingImages = async (
     action: "increment" | "decrement",
     count: number
@@ -43,8 +43,9 @@ export default function PollerComponent() {
   // aws에서 데이터 받아오기
   const fetchImages = async () => {
     try {
-      const response = await axios.get("/api/get-images");
-      console.log("/api/get-images 호출하여 AWS GW에서 이미지 받아오기");
+      const response = await axios.get("/api/get-images", {
+        params: { pendingImages }, // pendingImages를 쿼리 파라미터로 전달
+      });
 
       if (
         response.status === 200 &&
@@ -79,7 +80,10 @@ export default function PollerComponent() {
   useEffect(() => {
     if (pendingImages > 0 && !isPollingRef.current) {
       isPollingRef.current = true; // polling 시작
-      console.log("Polling 시작: pendingImages =", pendingImages);
+      console.log(
+        "pendingImages 변화에 따른 /api/get-images 호출 시작. & pendingImages =",
+        pendingImages
+      );
 
       const interval = setInterval(() => {
         if (isPollingRef.current) {

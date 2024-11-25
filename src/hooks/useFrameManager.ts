@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from "react";
-import { ImageData, FrameData } from "../types/frames";
+import { FrameData, ImageData } from "@/types/frames";
+import { FrameQueueManager } from "@/utils/frameQueue";
 
 export function useFrameManager(
   frames: FrameData[],
@@ -8,13 +9,42 @@ export function useFrameManager(
 ) {
   const frameManager = FrameQueueManager.getInstance();
 
+  useEffect(() => {
+    frameManager.initializeKeys([1, 2, 3, 4, 5, 6, 7]); // 초기화
+    console.log(
+      "Frame Manager initialized with keys:",
+      frameManager.getAvailableKeys()
+    );
+  }, []);
+
+  // // 프레임 키 초기화
+  // useEffect(() => {
+  //   const initialKeys = [1, 2, 3, 4, 5, 6, 7];
+  //   frameManager.initializeKeys(initialKeys);
+  //   console.log(
+  //     "Frame Manager initialized with keys:",
+  //     frameManager.getAvailableKeys()
+  //   );
+
+  //   // console.log("Frame Manager initialized with keys:", initialKeys);
+  // }, []);
+
   // 프레임 만료 체크
   const checkExpiredFrames = useCallback(() => {
-    const expiredKeys = frameManager.checkExpiredFrames();
-    expiredKeys.forEach((key) => {
-      frameManager.returnKey(key);
+    const now = Date.now();
+    frames.forEach((frame) => {
+      const elapsed = now - frame.timestamp;
+      if (elapsed >= 60000) {
+        console.log(`Frame expired: ${frame.key}`);
+
+        frameManager.addKey(frame.key); // 만료된 프레임을 큐에 추가
+        console.log(
+          "Updated availableKeys after expiration:",
+          frameManager.getAvailableKeys()
+        );
+      }
     });
-  }, []);
+  }, [frames, frameManager]);
 
   // 프레임 업데이트
   const updateFrame = useCallback(
@@ -31,7 +61,6 @@ export function useFrameManager(
             : frame
         )
       );
-      frameManager.activateFrame(frameKey);
     },
     [setFrames]
   );
@@ -46,7 +75,6 @@ export function useFrameManager(
         data: ImageData;
       };
 
-      // 프레임 키가 현재 화면에 속하는지 확인
       const isValidFrame = isMiddleScreen
         ? data.frameKey >= 1 && data.frameKey <= 4
         : data.frameKey >= 5 && data.frameKey <= 7;
