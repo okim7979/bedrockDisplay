@@ -4,25 +4,35 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import PollerComponent from "../_components/PollerComponent";
 
-interface ImageData {
-  src: string;
-  text: string;
-}
-
-interface FrameData {
-  key: number;
-  image: string;
-  text: string;
-  timestamp: number;
-}
+import { ImageData, FrameData } from "@/types/frames";
 
 export default function LastScreen() {
   // 프레임 데이터 상태 관리
   const [frames, setFrames] = useState<FrameData[]>([
-    { key: 5, image: "/images/mock1.png", text: "", timestamp: Date.now() },
-    { key: 0, image: "/images/mock1.png", text: "", timestamp: Date.now() },
-    { key: 6, image: "/images/mock3.png", text: "", timestamp: Date.now() },
-    { key: 7, image: "/images/mock4.png", text: "", timestamp: Date.now() },
+    {
+      key: 5,
+      Image: "/images/mock1.png",
+      Description: "",
+      timestamp: Date.now(),
+    },
+    {
+      key: 0,
+      Image: "/images/mock1.png",
+      Description: "",
+      timestamp: Date.now(),
+    },
+    {
+      key: 6,
+      Image: "/images/mock3.png",
+      Description: "",
+      timestamp: Date.now(),
+    },
+    {
+      key: 7,
+      Image: "/images/mock4.png",
+      Description: "",
+      timestamp: Date.now(),
+    },
   ]);
 
   // 고정 frame
@@ -108,8 +118,8 @@ export default function LastScreen() {
           frame.key === data.frameKey
             ? {
                 ...frame,
-                image: data.data.src,
-                text: data.data.text,
+                Image: data.data.Image,
+                Description: data.data.Description,
                 timestamp: Date.now(),
               }
             : frame
@@ -149,8 +159,6 @@ export default function LastScreen() {
               style={{
                 height: "90%", // 동적으로 높이 조정
                 width: "100%", // 비율 유지
-                // background: "blue",
-                //   visibility: frame.key === 0 ? "hidden" : "visible", // index가 0이면 보이지 않음
               }}
             >
               {/* 프레임과 인물 이미지 영역 (3/4 높이) */}
@@ -171,7 +179,7 @@ export default function LastScreen() {
 
                 {/* 인물 이미지 */}
                 <img
-                  src={frame.image}
+                  src={frame.Image}
                   alt={`Portrait ${index}`}
                   className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[52%] z-10"
                   style={{
