@@ -132,6 +132,7 @@ export default function MiddleScreen() {
                 src={gridImages[index]}
                 alt={`Frame ${index}`}
                 className="relative w-full h-full object-contain z-30"
+                style={{ transform: "scale(1.05)" }}
               />
 
               {/* 인물 이미지 */}
@@ -140,8 +141,10 @@ export default function MiddleScreen() {
                 alt={`Portrait ${index}`}
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[52%] z-10"
                 style={{
+                  // height: "70%",
+
                   height: "45vh",
-                  width: "14vw",
+                  width: "15.2vw",
                   // width: "auto",
                   clipPath: "ellipse(50% 50% at 50% 50%)", // 타원형 클리핑
                 }}

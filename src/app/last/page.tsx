@@ -207,6 +207,9 @@ export default function LastScreen() {
                   src={gridImages[index]}
                   alt={`Frame ${index}`}
                   className="relative w-full h-full object-contain z-30"
+                  style={{
+                    transform: frame.key === 5 ? "scale(1.05)" : "none", // 키가 5일 때 너비를 1.2배로 확대
+                  }}
                 />
 
                 {/* 인물 이미지 */}
@@ -215,8 +218,8 @@ export default function LastScreen() {
                   alt={`Portrait ${index}`}
                   className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[52%] z-10"
                   style={{
-                    height: "45vh",
-                    width: "14vw",
+                    height: frame.key === 5 ? "45vh" : "70%",
+                    width: frame.key === 5 ? "13.5vw" : "auto",
 
                     // height: "70%",
                     // width: "auto",
