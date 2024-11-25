@@ -100,9 +100,10 @@ export default function MiddleScreen() {
       }}
     >
       <div
-        className="relative grid grid-cols-4 gap-4 items-center"
+        className="relative grid grid-cols-4  items-center"
         style={{
           width: "100%", // 화면 크기에 비례
+          paddingLeft: "5%",
           aspectRatio: "2790 / 1080", // 2790 x 1080 비율 고정
         }}
       >
