@@ -26,24 +26,17 @@ export async function GET(req: Request) {
   return new Response(
     new ReadableStream({
       async start(controller) {
-        const sendKeepAlive = async () => {
-          while (true) {
-            await new Promise((resolve) => setTimeout(resolve, 15000)); // 15초마다 실행
-            try {
-              controller.enqueue(`data: "keep-alive"\n\n`);
-              console.log("Sent keep-alive message to client.");
-            } catch (err) {
-              console.error("Error sending keep-alive:", err);
-              break;
-            }
-          }
+        let intervalId: NodeJS.Timeout | null = null;
+
+        const sendKeepAlive = () => {
+          controller.enqueue(`data: "keep-alive"\n\n`);
+          console.log("Sent keep-alive message to client.");
         };
 
         const fetchAndProcessData = async () => {
-          while (pendingImages.count > 0) {
-            console.log("Pending images remaining:", pendingImages.count);
-
-            try {
+          try {
+            while (pendingImages.count > 0) {
+              console.log("Fetching data from AWS API Gateway...");
               const response = await axios.get(apiUrl, { timeout: 14000 });
 
               if (Array.isArray(response.data) && response.data.length > 0) {
@@ -78,21 +71,21 @@ export async function GET(req: Request) {
                   imageQueue.push(nextData);
                 }
               }
-            } catch (error: any) {
-              console.error("Error fetching data:", error);
             }
 
             if (pendingImages.count <= 0) {
               resetPendingImages();
               console.log("No more pending images. Closing stream.");
+              clearInterval(intervalId!); // Keep-alive 중지
               controller.close();
-              break;
             }
+          } catch (error: any) {
+            console.error("Error fetching data:", error);
           }
         };
 
-        sendKeepAlive(); // Keep-alive 메시지 시작
-        fetchAndProcessData(); // 데이터 처리 시작
+        intervalId = setInterval(sendKeepAlive, 3000); // 3초마다 Keep-alive 메시지 전송
+        fetchAndProcessData();
       },
     }),
     {
