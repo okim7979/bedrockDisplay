@@ -69,7 +69,7 @@ export default function MiddleScreen() {
     );
   }, []);
 
-  useDataHandler(pendingImages, true, updateFrames);
+  useDataHandler(pendingImages, true, updateFrames); //pendingImages가 바뀔 때마다 실행될 것임
 
   useEffect(() => {
     console.log("Frames updated:", frames);
@@ -89,7 +89,7 @@ export default function MiddleScreen() {
       }}
     >
       <PollerComponent
-        pendingImages={pendingImages}
+        // pendingImages={pendingImages}
         setPendingImages={setPendingImages}
       />
 

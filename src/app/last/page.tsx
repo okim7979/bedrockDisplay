@@ -94,7 +94,7 @@ export default function LastScreen() {
       style={{ backgroundImage: "url('/images/background.png')" }}
     >
       <PollerComponent
-        pendingImages={pendingImages}
+        // pendingImages={pendingImages}
         setPendingImages={setPendingImages}
       />
 

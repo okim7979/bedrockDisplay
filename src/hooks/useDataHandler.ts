@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { ImageData } from "@/types/frames";
 
-export function useDataHandler(
+export function useDataHandler( //업데이트 받는 pendingImages를 사용하여 get-images로부터 SSE 연결 받아오기
   pendingImages: number,
   isMiddleScreen: boolean,
   updateFrames: (frameKey: number, data: ImageData) => void
@@ -42,16 +42,18 @@ export function useDataHandler(
             : null;
 
         if (endpoint) {
-          try {
-            console.log(`Sending data to ${endpoint}`, { frameKey, data });
-            await axios.post(endpoint, { frameKey, ...data });
+          updateFrames(frameKey, data);
 
-            // UI 업데이트
-            updateFrames(frameKey, data);
-            console.log("Frame updated successfully:", { frameKey, data });
-          } catch (error) {
-            console.error(`Error sending data to ${endpoint}:`, error);
-          }
+          // try {
+          //   // console.log(`Sending data to ${endpoint}`, { frameKey, data });
+          //   // await axios.post(endpoint, { frameKey, ...data });
+
+          //   // UI 업데이트
+          //   updateFrames(frameKey, data);
+          //   console.log("Frame updated successfully:", { frameKey, data });
+          // } catch (error) {
+          //   console.error(`Error sending data to ${endpoint}:`, error);
+          // }
         }
       } catch (error) {
         console.error("Error processing SSE message:", error);
