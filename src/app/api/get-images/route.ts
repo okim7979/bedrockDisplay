@@ -54,7 +54,7 @@ export async function GET(req: Request) {
           while (pendingImages.count > 0) {
             console.log("Pending images remaining:", pendingImages.count);
 
-            let mockDataAdded = false; // 플래그 추가
+            // let mockDataAdded = false; // 플래그 추가
             try {
               // if (!mockDataAdded) {
               //   mockData.forEach((obj) => {

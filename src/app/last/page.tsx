@@ -152,8 +152,8 @@ export default function LastScreen() {
                   className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[52%] z-10"
                   style={{
                     height: "70%",
-                    width: frame.key === 5 ? "calc(100%*1.03)" : "auto",
-                    // width: "auto",
+                    // width: frame.key === 5 ? "calc(100%*1.03)" : "auto",
+                    width: "auto",
                     clipPath: "ellipse(50% 50% at 50% 50%)", // 타원형 클리핑
                   }}
                 />
