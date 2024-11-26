@@ -138,7 +138,9 @@ export default function MiddleScreen() {
 
                   // height: "45vh",
                   // width: "15.2vw",
-                  width: "auto",
+                  // width: "auto",
+                  width: "calc(100% * 1.5)", // 너비를 1.2배로 설정
+
                   clipPath: "ellipse(50% 50% at 50% 50%)", // 타원형 클리핑
                 }}
               />

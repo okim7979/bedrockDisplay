@@ -55,23 +55,12 @@ export default function LeftScreen() {
       }}
     >
       <div className="flex flex-col justify-start items-center w-full h-full gap-20">
-        {/* Top section with image */}
-        <div
-          className="justify-center"
-          style={{ marginTop: "5%", width: "83%" }}
-        >
-          <img
-            src="/images/architecture.png"
-            alt="Architecture diagram"
-            className="object-contain "
-          />
-        </div>
-
         {/* Bottom section with buttons */}
         <div
           className="relative flex items-center justify-center gap-8 mb-1 "
           style={{
             width: "60%",
+            marginTop: "5%",
           }}
         >
           {waitingList.map((item, index) => (
@@ -96,6 +85,17 @@ export default function LeftScreen() {
               </div>
             </div>
           ))}
+        </div>
+        {/* Top section with image */}
+        <div
+          className="justify-center"
+          style={{ marginTop: "5%", width: "83%" }}
+        >
+          <img
+            src="/images/architecture.png"
+            alt="Architecture diagram"
+            className="object-contain "
+          />
         </div>
       </div>
     </div>

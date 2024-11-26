@@ -5,7 +5,6 @@ import axios from "axios";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  // let pendingImages = Number(searchParams.get("pendingImages")); // 클라이언트로부터 전달된 pendingImages 값
 
   //참조로 전달
   let pendingImages = { count: Number(searchParams.get("pendingImages")) };
@@ -67,7 +66,7 @@ export async function GET(req: Request) {
               // }
 
               console.log("Fetching data from AWS API Gateway...");
-              const response = await axios.get(apiUrl, { timeout: 60000 });
+              const response = await axios.get(apiUrl, { timeout: 300000 });
 
               const now = new Date();
               console.log("현재 시간 (서버):", now.toLocaleString());
@@ -94,15 +93,6 @@ export async function GET(req: Request) {
                 // 프레임 키 큐에서 다음 키 가져오기
                 const frameKey = frameKeyQueue.shift();
                 if (!frameKey) break;
-
-                // if (!frameKey) {
-                //   console.warn(
-                //     "No available frame key. Waiting for 1 minute..."
-                //   );
-                //   await new Promise((resolve) => setTimeout(resolve, 60000));
-                //   continue;
-                // }
-
                 console.log("Using frameKey:", frameKey);
 
                 // 프레임 키를 다시 큐 끝에 추가 (순환 구조)
