@@ -7,6 +7,10 @@ export function useDataHandler( //업데이트 받는 pendingImages를 사용하
   isMiddleScreen: boolean,
   updateFrames: (frameKey: number, data: ImageData) => void
 ) {
+  useEffect(() => {
+    console.log("useDataHandler initialized with:", { pendingImages });
+    // EventSource 또는 데이터 로직 추가
+  }, [pendingImages]);
   // const [pendingImages, setPendingImages] = useState<number>(0);
   // const [isConnected, setIsConnected] = useState(false);
 

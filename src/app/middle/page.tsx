@@ -28,46 +28,67 @@ export default function MiddleScreen() {
       Image: "/images/mock1.png",
       Description:
         "당신은 미래 소방관으로 선발되어 화재 현장에서 빛나는 활약을 펼쳤으며, 뛰어난 공로로 세계적인 소방 안전상까지 수상했습니다. ",
-      timestamp: Date.now() - Math.floor(Math.random() * 10000),
+      timestamp: Date.now() + Math.random(),
     },
     {
       key: 2,
       Image: "/images/mock2.png",
       Description:
         "당신은 미래 소방관으로 선발되어 화재 현장에서 빛나는 활약을 펼쳤으며, 뛰어난 공로로 세계적인 소방 안전상까지 수상했습니다. ",
-      timestamp: Date.now() - Math.floor(Math.random() * 10000),
+      timestamp: Date.now() + Math.random(),
     },
     {
       key: 3,
       Image: "/images/mock3.png",
       Description:
         "당신은 미래 소방관으로 선발되어 화재 현장에서 빛나는 활약을 펼쳤으며, 뛰어난 공로로 세계적인 소방 안전상까지 수상했습니다. ",
-      timestamp: Date.now() - Math.floor(Math.random() * 10000),
+      timestamp: Date.now() + Math.random(),
     },
     {
       key: 4,
       Image: "/images/mock4.png",
       Description:
         "당신은 미래 소방관으로 선발되어 화재 현장에서 빛나는 활약을 펼쳤으며, 뛰어난 공로로 세계적인 소방 안전상까지 수상했습니다. ",
-      timestamp: Date.now() - Math.floor(Math.random() * 10000),
+      timestamp: Date.now() + Math.random(),
     },
   ]);
-  // 프레임 상태 업데이트 함수를 메모이제이션
+
   const updateFrames = useCallback((frameKey: number, data: ImageData) => {
     console.log("updateFrames called with:", { frameKey, data });
-    setFrames((prev) =>
-      prev.map((frame) =>
+
+    setFrames((prev) => {
+      console.log("Previous frames state:", prev);
+      const updatedFrames = prev.map((frame) =>
         frame.key === frameKey
           ? {
               ...frame,
               Image: data.Image,
               Description: data.Description,
-              timestamp: Date.now() - Math.floor(Math.random() * 10000),
+              timestamp: Date.now() + Math.random(),
             }
           : frame
-      )
-    );
+      );
+      console.log("Updated frames state:", updatedFrames);
+      return updatedFrames;
+    });
   }, []);
+
+  // 프레임 상태 업데이트 함수를 메모이제이션
+  // const updateFrames = useCallback((frameKey: number, data: ImageData) => {
+  //   console.log("updateFrames called with:", { frameKey, data });
+  //   setFrames((prev) =>
+  //     prev.map((frame) =>
+  //       frame.key === frameKey
+  //         ? {
+  //             ...frame,
+  //             Image: data.Image,
+  //             Description: data.Description,
+  //             timestamp: Date.now() - Math.floor(Math.random() * 10000),
+  //           }
+  //         : frame
+  //     )
+  //   );
+  // }, []);
 
   useDataHandler(pendingImages, true, updateFrames); //pendingImages가 바뀔 때마다 실행될 것임
 
@@ -79,7 +100,7 @@ export default function MiddleScreen() {
   }, [frames]);
 
   useEffect(() => {
-    console.log("Frames updated by pendingImages:", pendingImages);
+    console.log("pendingImages updated in middle-page:", pendingImages);
   }, [pendingImages]);
 
   return (

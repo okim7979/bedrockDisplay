@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "http://127.0.0.1:3001/api/:path*", // 정확한 주소 사용
+        destination: `${process.env.NEXT_PUBLIC_SERVICE_URL}/api/:path*`, // 환경 변수 사용
       },
     ];
   },
