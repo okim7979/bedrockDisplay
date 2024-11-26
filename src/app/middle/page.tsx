@@ -73,10 +73,11 @@ export default function MiddleScreen() {
 
   useEffect(() => {
     console.log("Frames updated:", frames);
+    console.log("Frames updated:", frames[1]);
   }, [frames]);
 
   useEffect(() => {
-    console.log("Frames updated:", pendingImages);
+    console.log("Frames updated by pendingImages:", pendingImages);
   }, [pendingImages]);
 
   return (

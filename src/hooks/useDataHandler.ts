@@ -92,5 +92,5 @@ export function useDataHandler(
   // }, [isConnected]);
 
   // return { isConnected, pendingImages };
-  return null;
+  // return null;
 }
