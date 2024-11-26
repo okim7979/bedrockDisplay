@@ -105,7 +105,7 @@ export default function MiddleScreen() {
       >
         {frames.map((frame, index) => (
           <div
-            // key={frame.timestamp}
+            key={frame.timestamp}
             className="relative flex flex-col justify-center items-center"
             style={{
               height: "90%", // 동적으로 높이 조정
@@ -114,6 +114,7 @@ export default function MiddleScreen() {
           >
             {/* 프레임과 인물 이미지 영역 */}
             <div
+              key={frame.timestamp}
               className="relative"
               style={{
                 height: "70%", // 전체 높이의 3/4
@@ -150,7 +151,7 @@ export default function MiddleScreen() {
 
             {/* 하단 설명 영역 */}
             <div
-              // key={frame.timestamp}
+              key={frame.timestamp}
               className="relative flex items-center justify-center"
               style={{
                 height: "16%", // 전체 높이의 1/4
