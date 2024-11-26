@@ -39,8 +39,10 @@ export async function GET(req: Request) {
               console.log("Fetching data from AWS API Gateway...");
               const response = await axios.get(apiUrl, { timeout: 14000 });
 
+              let dataReceived = false;
               if (Array.isArray(response.data) && response.data.length > 0) {
                 console.log("Data fetched from AWS:", response.data);
+                dataReceived = true;
 
                 response.data.forEach((obj: ImageData) => {
                   imageQueue.push(obj);
@@ -71,6 +73,12 @@ export async function GET(req: Request) {
                   imageQueue.push(nextData);
                 }
               }
+              // 데이터를 받지 못했다면 10초 후에 재시도
+              if (!dataReceived) {
+                console.log("No data received, retrying in 15 seconds...");
+                await new Promise((resolve) => setTimeout(resolve, 10000));
+                continue;
+              }
             }
 
             if (pendingImages.count <= 0) {
@@ -84,7 +92,10 @@ export async function GET(req: Request) {
           }
         };
 
+        // 3초마다 keep-alive 메시지 전송 시작
         intervalId = setInterval(sendKeepAlive, 3000); // 3초마다 Keep-alive 메시지 전송
+
+        // 초기 데이터 가져오기 시작
         fetchAndProcessData();
       },
     }),
