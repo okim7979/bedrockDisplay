@@ -105,6 +105,7 @@ export async function GET(req: Request) {
         "Cache-Control": "no-cache",
         Connection: "keep-alive",
         "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": "true",
       },
     }
   );

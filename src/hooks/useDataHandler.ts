@@ -48,6 +48,8 @@ export function useDataHandler( //업데이트 받는 pendingImages를 사용하
             : null;
 
         if (endpoint) {
+          console.log("Updating frames with:", { frameKey, data });
+
           updateFrames(frameKey, data);
 
           // try {

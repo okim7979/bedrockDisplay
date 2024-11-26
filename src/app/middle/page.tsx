@@ -105,7 +105,7 @@ export default function MiddleScreen() {
       >
         {frames.map((frame, index) => (
           <div
-            key={frame.key}
+            // key={frame.timestamp}
             className="relative flex flex-col justify-center items-center"
             style={{
               height: "90%", // 동적으로 높이 조정
@@ -131,6 +131,7 @@ export default function MiddleScreen() {
 
               {/* 인물 이미지 */}
               <img
+                key={frame.timestamp}
                 src={frame.Image}
                 alt={`Portrait ${index}`}
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[52%] z-10"
@@ -149,6 +150,7 @@ export default function MiddleScreen() {
 
             {/* 하단 설명 영역 */}
             <div
+              // key={frame.timestamp}
               className="relative flex items-center justify-center"
               style={{
                 height: "16%", // 전체 높이의 1/4
@@ -164,6 +166,7 @@ export default function MiddleScreen() {
 
               {/* 설명 텍스트 */}
               <div
+                key={frame.timestamp}
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] flex items-center justify-center text-white text-center"
                 style={{
                   textOverflow: "ellipsis", // 넘어가는 텍스트를 ...으로 표시
