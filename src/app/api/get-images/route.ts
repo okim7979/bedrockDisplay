@@ -27,17 +27,22 @@ export async function GET(req: Request) {
     new ReadableStream({
       async start(controller) {
         let intervalId: NodeJS.Timeout | null = null;
+        let isStreamClosed = false;
 
         const sendKeepAlive = () => {
-          controller.enqueue(`data: "keep-alive"\n\n`);
-          console.log("Sent keep-alive message to client.");
+          if (!isStreamClosed) {
+            controller.enqueue(`data: "keep-alive"\n\n`);
+            console.log("Sent keep-alive message to client.");
+          } else {
+            console.warn("Attempted to send keep-alive on closed stream.");
+          }
         };
 
         const fetchAndProcessData = async () => {
           try {
-            while (pendingImages.count > 0) {
+            while (pendingImages.count > 0 && !isStreamClosed) {
               console.log("Fetching data from AWS API Gateway...");
-              const response = await axios.get(apiUrl, { timeout: 14000 });
+              const response = await axios.get(apiUrl, { timeout: 3000 });
 
               let dataReceived = false;
               if (Array.isArray(response.data) && response.data.length > 0) {
@@ -52,7 +57,7 @@ export async function GET(req: Request) {
                 console.warn("No data received or data format invalid.");
               }
 
-              while (imageQueue.length > 0) {
+              while (imageQueue.length > 0 && !isStreamClosed) {
                 const nextData = imageQueue.shift();
                 if (!nextData) break;
 
@@ -61,21 +66,23 @@ export async function GET(req: Request) {
 
                 frameKeyQueue.push(frameKey);
 
-                try {
-                  const eventData = JSON.stringify({
-                    frameKey,
-                    data: nextData,
-                  });
-                  controller.enqueue(`data: ${eventData}\n\n`);
-                  console.log("Sent data to client:", eventData);
-                } catch (error) {
-                  console.error("Error sending data:", error);
-                  imageQueue.push(nextData);
+                if (!isStreamClosed) {
+                  try {
+                    const eventData = JSON.stringify({
+                      frameKey,
+                      data: nextData,
+                    });
+                    controller.enqueue(`data: ${eventData}\n\n`);
+                    console.log("Sent data to client:", eventData);
+                  } catch (error) {
+                    console.error("Error sending data:", error);
+                    imageQueue.push(nextData);
+                  }
                 }
               }
               // 데이터를 받지 못했다면 1초 후에 재시도
               if (!dataReceived) {
-                console.log("No data received, retrying in 15 seconds...");
+                console.log("No data received, retrying in 1 seconds...");
                 await new Promise((resolve) => setTimeout(resolve, 1));
                 continue;
               }

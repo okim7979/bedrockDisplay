@@ -28,28 +28,28 @@ export default function MiddleScreen() {
       Image: "/images/mock1.png",
       Description:
         "당신은 미래 소방관으로 선발되어 화재 현장에서 빛나는 활약을 펼쳤으며, 뛰어난 공로로 세계적인 소방 안전상까지 수상했습니다. ",
-      timestamp: Date.now(),
+      timestamp: Date.now() - Math.floor(Math.random() * 10000),
     },
     {
       key: 2,
       Image: "/images/mock2.png",
       Description:
         "당신은 미래 소방관으로 선발되어 화재 현장에서 빛나는 활약을 펼쳤으며, 뛰어난 공로로 세계적인 소방 안전상까지 수상했습니다. ",
-      timestamp: Date.now(),
+      timestamp: Date.now() - Math.floor(Math.random() * 10000),
     },
     {
       key: 3,
       Image: "/images/mock3.png",
       Description:
         "당신은 미래 소방관으로 선발되어 화재 현장에서 빛나는 활약을 펼쳤으며, 뛰어난 공로로 세계적인 소방 안전상까지 수상했습니다. ",
-      timestamp: Date.now(),
+      timestamp: Date.now() - Math.floor(Math.random() * 10000),
     },
     {
       key: 4,
       Image: "/images/mock4.png",
       Description:
         "당신은 미래 소방관으로 선발되어 화재 현장에서 빛나는 활약을 펼쳤으며, 뛰어난 공로로 세계적인 소방 안전상까지 수상했습니다. ",
-      timestamp: Date.now(),
+      timestamp: Date.now() - Math.floor(Math.random() * 10000),
     },
   ]);
   // 프레임 상태 업데이트 함수를 메모이제이션
@@ -62,7 +62,7 @@ export default function MiddleScreen() {
               ...frame,
               Image: data.Image,
               Description: data.Description,
-              timestamp: Date.now(),
+              timestamp: Date.now() - Math.floor(Math.random() * 10000),
             }
           : frame
       )
@@ -72,8 +72,10 @@ export default function MiddleScreen() {
   useDataHandler(pendingImages, true, updateFrames); //pendingImages가 바뀔 때마다 실행될 것임
 
   useEffect(() => {
-    console.log("Frames updated:", frames);
-    console.log("Frames updated:", frames[1]);
+    console.log("Frames updated - Rendering check:");
+    frames.forEach((frame, index) => {
+      console.log(`Frame ${index}:`, frame);
+    });
   }, [frames]);
 
   useEffect(() => {
@@ -114,7 +116,6 @@ export default function MiddleScreen() {
           >
             {/* 프레임과 인물 이미지 영역 */}
             <div
-              key={frame.timestamp}
               className="relative"
               style={{
                 height: "70%", // 전체 높이의 3/4
@@ -132,7 +133,6 @@ export default function MiddleScreen() {
 
               {/* 인물 이미지 */}
               <img
-                key={frame.timestamp}
                 src={frame.Image}
                 alt={`Portrait ${index}`}
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[52%] z-10"
@@ -151,7 +151,6 @@ export default function MiddleScreen() {
 
             {/* 하단 설명 영역 */}
             <div
-              key={frame.timestamp}
               className="relative flex items-center justify-center"
               style={{
                 height: "16%", // 전체 높이의 1/4
@@ -167,7 +166,6 @@ export default function MiddleScreen() {
 
               {/* 설명 텍스트 */}
               <div
-                key={frame.timestamp}
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] flex items-center justify-center text-white text-center"
                 style={{
                   textOverflow: "ellipsis", // 넘어가는 텍스트를 ...으로 표시
