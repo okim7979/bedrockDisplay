@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { useFrameManager } from "@/hooks/useFrameManager";
 import { ImageData, FrameData } from "@/types/frames";
 import PollerComponent from "../_components/PollerComponent";
 import { useDataHandler } from "@/hooks/useDataHandler";
 
 export default function MiddleScreen() {
+  const [pendingImages, setPendingImages] = useState(0);
+
   const [gridImages] = useState<string[]>([
     "/images/frame1.png",
     "/images/frame2.png",
@@ -51,10 +52,9 @@ export default function MiddleScreen() {
       timestamp: Date.now(),
     },
   ]);
-  // useFrameManager(frames, setFrames, true);
-
-  // 프레임 상태 업데이트 함수
-  const updateFrames = (frameKey: number, data: ImageData) => {
+  // 프레임 상태 업데이트 함수를 메모이제이션
+  const updateFrames = useCallback((frameKey: number, data: ImageData) => {
+    console.log("updateFrames called with:", { frameKey, data });
     setFrames((prev) =>
       prev.map((frame) =>
         frame.key === frameKey
@@ -67,12 +67,17 @@ export default function MiddleScreen() {
           : frame
       )
     );
+  }, []);
 
-    console.log("최종 프레임 상태 업데이트 완료");
-  };
+  useDataHandler(pendingImages, true, updateFrames);
 
-  console.log("middle 페이지에서 useDataHandler 실행");
-  useDataHandler(true, updateFrames);
+  useEffect(() => {
+    console.log("Frames updated:", frames);
+  }, [frames]);
+
+  useEffect(() => {
+    console.log("Frames updated:", pendingImages);
+  }, [pendingImages]);
 
   return (
     <main
@@ -82,16 +87,19 @@ export default function MiddleScreen() {
         backgroundSize: "calc(100% + 180px)", // 너비 2790 기준으로 배경 크기를 2970에 맞춤
       }}
     >
-      <PollerComponent />
+      <PollerComponent
+        pendingImages={pendingImages}
+        setPendingImages={setPendingImages}
+      />
 
       <div
         className="relative grid grid-cols-4 items-center"
         style={{
           height: "100%",
+          aspectRatio: "2790 / 1080", // 2790 x 1080 비율 고정
 
           // width: "100%", // 화면 크기에 비례
           paddingLeft: "5%",
-          aspectRatio: "2790 / 1080", // 2790 x 1080 비율 고정
         }}
       >
         {frames.map((frame, index) => (
@@ -116,8 +124,8 @@ export default function MiddleScreen() {
                 key={index}
                 src={gridImages[index]}
                 alt={`Frame ${index}`}
-                className="relative w-full h-full object-contain z-30"
-                style={{ transform: "scale(1.05)" }}
+                className="relative h-full object-contain z-30"
+                style={{ width: "calc(100%*1.2)" }}
               />
 
               {/* 인물 이미지 */}

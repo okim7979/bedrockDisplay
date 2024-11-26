@@ -1,58 +1,96 @@
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { ImageData } from "@/types/frames";
 
 export function useDataHandler(
+  pendingImages: number,
   isMiddleScreen: boolean,
   updateFrames: (frameKey: number, data: ImageData) => void
 ) {
-  useEffect(() => {
-    console.log("useDataHandler 함수 실행 됨");
-    const eventSource = new EventSource("/api/get-images?pendingImages=4");
+  // const [pendingImages, setPendingImages] = useState<number>(0);
+  // const [isConnected, setIsConnected] = useState(false);
 
-    // 연결 상태 확인
-    eventSource.onopen = (event) => {
-      console.log("EventSource connection opened:", event);
+  // 이벤트 핸들러 설정
+  const setupEventSource = useCallback(() => {
+    // const currentPendingImages = await fetchPendingImages();
+
+    if (pendingImages <= 0) {
+      console.log("No pending images to process");
+      return null;
+    }
+
+    console.log("Setting up EventSource with pendingImages:", pendingImages);
+    const eventSource = new EventSource(
+      `/api/get-images?pendingImages=${pendingImages}`
+    );
+
+    eventSource.onopen = () => {
+      console.log("EventSource connection opened:");
+      // setIsConnected(true);
     };
 
     eventSource.onmessage = async (event) => {
-      const { frameKey, data } = JSON.parse(event.data);
+      try {
+        console.log("Received SSE message:", event.data);
+        const { frameKey, data } = JSON.parse(event.data);
 
-      const endpoint =
-        isMiddleScreen && frameKey >= 1 && frameKey <= 4
-          ? `${process.env.NEXT_PUBLIC_SERVICE_URL}/middle`
-          : !isMiddleScreen && frameKey >= 5 && frameKey <= 7
-          ? `${process.env.NEXT_PUBLIC_SERVICE_URL}/last`
-          : null;
+        const endpoint =
+          isMiddleScreen && frameKey >= 1 && frameKey <= 4
+            ? `${process.env.NEXT_PUBLIC_SERVICE_URL}/middle`
+            : !isMiddleScreen && frameKey >= 5 && frameKey <= 7
+            ? `${process.env.NEXT_PUBLIC_SERVICE_URL}/last`
+            : null;
 
-      if (endpoint) {
-        try {
-          console.log(`Sending data to ${endpoint}`, { frameKey, data });
-          await axios.post(endpoint, { frameKey, ...data });
+        if (endpoint) {
+          try {
+            console.log(`Sending data to ${endpoint}`, { frameKey, data });
+            await axios.post(endpoint, { frameKey, ...data });
 
-          // 상태 업데이트 호출
-          updateFrames(frameKey, data);
-          console.log("updateFrames endpoint : ", endpoint);
-          console.log("updateFrames frameKey : ", frameKey);
-          console.log("updateFrames data : ", data);
-        } catch (error) {
-          console.error(`Error sending data to ${endpoint}:`, error);
+            // UI 업데이트
+            updateFrames(frameKey, data);
+            console.log("Frame updated successfully:", { frameKey, data });
+          } catch (error) {
+            console.error(`Error sending data to ${endpoint}:`, error);
+          }
         }
+      } catch (error) {
+        console.error("Error processing SSE message:", error);
       }
     };
 
     eventSource.onerror = (error) => {
-      console.error(
-        "EventSource error during handling key frame index :",
-        error
-      );
+      console.error("EventSource error:", error);
+      // setIsConnected(false);
       eventSource.close();
     };
 
-    // return () => eventSource.close();
+    return eventSource;
+  }, [pendingImages, isMiddleScreen, updateFrames]);
+
+  // 초기 설정 및 정리
+  useEffect(() => {
+    let eventSource = setupEventSource();
+
+    // const initializeEventSource = async () => {
+    //   eventSource = await setupEventSource();
+    // };
+
+    // initializeEventSource();
+
     return () => {
-      console.log("EventSource closed");
-      eventSource.close();
+      if (eventSource) {
+        console.log("Cleaning up EventSource connection");
+        eventSource.close();
+        // setIsConnected(false);
+      }
     };
-  }, []);
+  }, [setupEventSource]); //setupEventSource
+
+  // // 연결 상태 모니터링
+  // useEffect(() => {
+  //   console.log("SSE Connection status:", isConnected);
+  // }, [isConnected]);
+
+  // return { isConnected, pendingImages };
+  return null;
 }

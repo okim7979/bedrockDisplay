@@ -4,11 +4,14 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
 // 데이터 polling 하는 api를 호출하는 컴포넌트
-export default function PollerComponent() {
-  const [pendingImages, setPendingImages] = useState(0);
+export default function PollerComponent({
+  pendingImages,
+  setPendingImages,
+}: {
+  pendingImages: number;
+  setPendingImages: React.Dispatch<React.SetStateAction<number>>;
+}) {
   const isPollingRef = useRef(false); // polling 상태 관리
-
-  // console.log("PollerComponent 렌더링. pendingImages:", pendingImages);
 
   // pendingImages 변수값 업데이트
   const updatePendingImages = async (

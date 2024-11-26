@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Error handling update request:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error at /waiting-number" },
       { status: 500 }
     );
   }

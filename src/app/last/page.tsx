@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import PollerComponent from "../_components/PollerComponent";
 import { useFrameManager } from "@/hooks/useFrameManager";
@@ -8,6 +8,8 @@ import { ImageData, FrameData } from "@/types/frames";
 import { useDataHandler } from "@/hooks/useDataHandler";
 
 export default function LastScreen() {
+  const [pendingImages, setPendingImages] = useState(0);
+
   // 프레임 데이터 상태 관리
   const [frames, setFrames] = useState<FrameData[]>([
     {
@@ -36,25 +38,6 @@ export default function LastScreen() {
     },
   ]);
 
-  useFrameManager(frames, setFrames, false);
-
-  // 프레임 상태 업데이트 함수
-  const updateFrames = (frameKey: number, data: ImageData) => {
-    setFrames((prev) =>
-      prev.map((frame) =>
-        frame.key === frameKey
-          ? {
-              ...frame,
-              Image: data.Image,
-              Description: data.Description,
-              timestamp: Date.now(),
-            }
-          : frame
-      )
-    );
-  };
-  useDataHandler(false, updateFrames); //업데이트 되는 데이터 받아오기
-
   // 고정 frame
   const [gridImages] = useState<string[]>([
     "/images/frame1.png",
@@ -78,84 +61,42 @@ export default function LastScreen() {
     "/images/mock4.png",
   ]);
 
-  // 서버에 프레임 키 등록
-  const registerFrameKey = async (key: number): Promise<void> => {
-    try {
-      await axios.post("/api/return-key", { key });
-      console.log(`Registered frame key: ${key}`);
-    } catch (error) {
-      console.error("Error registering frame key:", error);
-    }
-  };
-
-  // 초기 프레임 키 등록
-  useEffect(() => {
-    const registerAllFrames = async () => {
-      for (const frame of frames) {
-        await registerFrameKey(frame.key);
-      }
-    };
-    registerAllFrames();
+  // 프레임 상태 업데이트 함수를 메모이제이션
+  const updateFrames = useCallback((frameKey: number, data: ImageData) => {
+    console.log("updateFrames called with:", { frameKey, data });
+    setFrames((prev) =>
+      prev.map((frame) =>
+        frame.key === frameKey
+          ? {
+              ...frame,
+              Image: data.Image,
+              Description: data.Description,
+              timestamp: Date.now(),
+            }
+          : frame
+      )
+    );
   }, []);
 
-  // 각 프레임별 타이머 관리
+  useDataHandler(pendingImages, true, updateFrames);
+
   useEffect(() => {
-    const intervals = frames.map((frame) => {
-      return setInterval(() => {
-        const now = Date.now();
-        const elapsed = now - frame.timestamp;
-
-        // 1분(60000ms)이 지났는지 확인
-        if (elapsed >= 60000) {
-          // 새로운 프레임 키 등록
-          registerFrameKey(frame.key);
-
-          // 프레임 타임스탬프 업데이트
-          setFrames((prev) =>
-            prev.map((f) =>
-              f.key === frame.key ? { ...f, timestamp: now } : f
-            )
-          );
-        }
-      }, 1000); // 1초마다 체크
-    });
-
-    return () => intervals.forEach(clearInterval);
+    console.log("Frames updated:", frames);
   }, [frames]);
 
-  // 서버로부터 새 데이터 수신
   useEffect(() => {
-    const eventSource = new EventSource("/api/get-images");
-
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data) as {
-        frameKey: number;
-        data: ImageData;
-      };
-
-      setFrames((prev) =>
-        prev.map((frame) =>
-          frame.key === data.frameKey
-            ? {
-                ...frame,
-                Image: data.data.Image,
-                Description: data.data.Description,
-                timestamp: Date.now(),
-              }
-            : frame
-        )
-      );
-    };
-
-    return () => eventSource.close();
-  }, []);
+    console.log("Frames updated:", pendingImages);
+  }, [pendingImages]);
 
   return (
     <main
       className="relative flex items-center justify-start h-screen w-full bg-cover bg-center"
       style={{ backgroundImage: "url('/images/background.png')" }}
     >
-      <PollerComponent />
+      <PollerComponent
+        pendingImages={pendingImages}
+        setPendingImages={setPendingImages}
+      />
 
       {/* 전체화면 그리드 */}
       <div
@@ -200,7 +141,7 @@ export default function LastScreen() {
                   alt={`Frame ${index}`}
                   className="relative w-full h-full object-contain z-30"
                   style={{
-                    transform: frame.key === 5 ? "scale(1.05)" : "none", // 키가 5일 때 너비를 1.2배로 확대
+                    transform: frame.key === 5 ? "calc(100%*1.2)" : "none", // 키가 5일 때 너비를 1.2배로 확대
                   }}
                 />
 
@@ -210,13 +151,9 @@ export default function LastScreen() {
                   alt={`Portrait ${index}`}
                   className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[52%] z-10"
                   style={{
-                    height: frame.key === 5 ? "45vh" : "70%",
-                    width: frame.key === 5 ? "13.5vw" : "auto",
-
-                    // height: "70%",
-                    // width: "auto",
-                    // width: "50%", // 프레임의 60% 크기
-                    // height: "auto",
+                    height: "70%",
+                    // width: frame.key === 5 ? "calc(100%*1.2)" : "auto",
+                    width: "auto",
                     clipPath: "ellipse(50% 50% at 50% 50%)", // 타원형 클리핑
                   }}
                 />
