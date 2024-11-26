@@ -73,10 +73,10 @@ export async function GET(req: Request) {
                   imageQueue.push(nextData);
                 }
               }
-              // 데이터를 받지 못했다면 10초 후에 재시도
+              // 데이터를 받지 못했다면 1초 후에 재시도
               if (!dataReceived) {
                 console.log("No data received, retrying in 15 seconds...");
-                await new Promise((resolve) => setTimeout(resolve, 10000));
+                await new Promise((resolve) => setTimeout(resolve, 1));
                 continue;
               }
             }
