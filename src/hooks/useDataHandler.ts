@@ -31,6 +31,12 @@ export function useDataHandler( //업데이트 받는 pendingImages를 사용하
 
     eventSource.onmessage = async (event) => {
       try {
+        if (event.data === '"keep-alive"') {
+          // Keep-alive 메시지 무시
+          console.log("Received keep-alive message. Ignoring.");
+          return;
+        }
+
         console.log("Received SSE message:", event.data);
         const { frameKey, data } = JSON.parse(event.data);
 
