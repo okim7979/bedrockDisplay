@@ -125,7 +125,7 @@ export default function MiddleScreen() {
                 src={gridImages[index]}
                 alt={`Frame ${index}`}
                 className="relative h-full object-contain z-30"
-                style={{ width: "calc(100%*1.2)" }}
+                style={{ width: "calc(100%*1.03)" }}
               />
 
               {/* 인물 이미지 */}
@@ -139,7 +139,7 @@ export default function MiddleScreen() {
                   // height: "45vh",
                   // width: "15.2vw",
                   // width: "auto",
-                  width: "calc(100% * 1.5)", // 너비를 1.2배로 설정
+                  width: "calc(100% * 1.03)", // 너비를 1.2배로 설정
 
                   clipPath: "ellipse(50% 50% at 50% 50%)", // 타원형 클리핑
                 }}

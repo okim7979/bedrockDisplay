@@ -141,7 +141,7 @@ export default function LastScreen() {
                   alt={`Frame ${index}`}
                   className="relative w-full h-full object-contain z-30"
                   style={{
-                    transform: frame.key === 5 ? "calc(100%*1.2)" : "none", // 키가 5일 때 너비를 1.2배로 확대
+                    transform: frame.key === 5 ? "calc(100%*1.03)" : "none", // 키가 5일 때 너비를 1.2배로 확대
                   }}
                 />
 
@@ -152,8 +152,8 @@ export default function LastScreen() {
                   className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[52%] z-10"
                   style={{
                     height: "70%",
-                    // width: frame.key === 5 ? "calc(100%*1.2)" : "auto",
-                    width: "auto",
+                    width: frame.key === 5 ? "calc(100%*1.03)" : "auto",
+                    // width: "auto",
                     clipPath: "ellipse(50% 50% at 50% 50%)", // 타원형 클리핑
                   }}
                 />
