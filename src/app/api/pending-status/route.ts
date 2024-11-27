@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
-import { pendingImages } from "@/utils/state";
+// /api/pending-status/route.ts
+import { NextApiRequest, NextApiResponse } from 'next';
+import { pendingImages } from '@/utils/state';
 
-export async function GET() {
-  return NextResponse.json({ pendingImages });
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  res.status(200).json({ pendingImages });
 }
